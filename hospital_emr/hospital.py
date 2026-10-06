@@ -26,9 +26,10 @@ patients = {
 # Shared Services
 # -------------------------------------------------
 
-CLIENT_REGISTRY_API = "http://127.0.0.1:5002/api/match"
+CLIENT_REGISTRY_API = os.environ.get("CLIENT_REGISTRY_API", "http://127.0.0.1:5002/api/match")
 
-TERMINOLOGY_API = "http://127.0.0.1:5004/api/validate"
+TERMINOLOGY_API = os.environ.get("TERMINOLOGY_API", "http://127.0.0.1:5004/api/validate")
+REQUEST_TIMEOUT = int(os.environ.get("REQUEST_TIMEOUT", "5"))
 
 
 # -------------------------------------------------
@@ -288,7 +289,7 @@ def receive_result():
 
         registry_response = requests.get(
             f"{CLIENT_REGISTRY_API}/{external_patient_id}",
-            timeout=5
+            timeout=REQUEST_TIMEOUT
         )
 
     except requests.exceptions.RequestException:
@@ -382,7 +383,7 @@ def receive_result():
         terminology_response = requests.post(
             TERMINOLOGY_API,
             json=terminology_request,
-            timeout=5
+            timeout=REQUEST_TIMEOUT
         )
 
     except requests.exceptions.RequestException:
@@ -900,3 +901,6 @@ if __name__ == "__main__":
         port=5001,
         debug=True
     )
+
+
+

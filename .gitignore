@@ -29,3 +29,12 @@ current_code.txt
 # Local development helper scripts
 prepare_github.ps1
 redesign_healthlink_ui.ps1
+
+# Local deployment helper
+prepare_render_deployment.ps1
+
+fix_multiple_results.py
+
+# Local upgrade helpers and backups
+add_multiple_results.ps1
+*.before-multitest

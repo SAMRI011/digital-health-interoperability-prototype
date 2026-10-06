@@ -1,4 +1,4 @@
-﻿from flask import Flask, request
+from flask import Flask, request
 import requests
 import os
 
@@ -12,8 +12,17 @@ app = Flask(__name__)
 # directly with the Hospital EMR.
 # -------------------------------------------------
 
-EXCHANGE_API = "http://127.0.0.1:5003/api/exchange"
+EXCHANGE_API = os.environ.get("EXCHANGE_API", "http://127.0.0.1:5003/api/exchange")
 API_KEY = os.environ.get("DIAGNOSTIC_API_KEY")
+REQUEST_TIMEOUT = int(os.environ.get("REQUEST_TIMEOUT", "5"))
+
+TEST_CATALOG = {
+    "lvef": {"display": "Left ventricular ejection fraction", "loinc": "10230-1", "unit": "%"},
+    "hemoglobin": {"display": "Hemoglobin [Mass/volume] in Blood", "loinc": "718-7", "unit": "g/dL"},
+    "creatinine": {"display": "Creatinine [Mass/volume] in Serum or Plasma", "loinc": "2160-0", "unit": "mg/dL"},
+    "glucose": {"display": "Glucose [Mass/volume] in Serum or Plasma", "loinc": "2345-7", "unit": "mg/dL"}
+}
+
 
 
 @app.route("/")
@@ -80,7 +89,7 @@ def home():
                 <section class="card">
 
                     <h2>
-                        Echocardiogram Result
+                        External Diagnostic Result
                     </h2>
 
                     <form
@@ -112,15 +121,25 @@ def home():
 
 
                         <label>
-                            Left Ventricular Ejection Fraction
+                            Result Type
+                        </label>
+
+                        <select name="test_type" required>
+                            <option value="lvef">LVEF — %</option>
+                            <option value="hemoglobin">Hemoglobin — g/dL</option>
+                            <option value="creatinine">Creatinine — mg/dL</option>
+                            <option value="glucose">Glucose — mg/dL</option>
+                        </select>
+
+                        <label>
+                            Result Value
                         </label>
 
                         <input
-                            name="ef"
+                            name="result_value"
                             type="number"
-                            min="0"
-                            max="100"
-                            placeholder="Example: 60"
+                            step="any"
+                            placeholder="Enter numeric result"
                             required
                         >
 
@@ -246,8 +265,13 @@ def send():
     patient_id = request.form["external_patient_id"]
 
     date = request.form["date"]
+    test_type = request.form["test_type"]
+    test = TEST_CATALOG.get(test_type)
 
-    ef = float(request.form["ef"])
+    if not test:
+        return "Unsupported result type.", 400
+
+    result_value = float(request.form["result_value"])
 
     conclusion = request.form["conclusion"]
 
@@ -284,7 +308,7 @@ def send():
 
             {
                 "reference":
-                    "Observation/ef-1"
+                    "Observation/result-1"
             }
 
         ]
@@ -301,7 +325,7 @@ def send():
             "Observation",
 
         "id":
-            "ef-1",
+            "result-1",
 
         "status":
             "final",
@@ -316,16 +340,16 @@ def send():
                         "http://loinc.org",
 
                     "code":
-                        "10230-1",
+                        test["loinc"],
 
                     "display":
-                        "Left ventricular Ejection fraction"
+                        test["display"]
                 }
 
             ],
 
             "text":
-                "Left ventricular ejection fraction"
+                test["display"]
         },
 
         "subject": {
@@ -347,16 +371,16 @@ def send():
         "valueQuantity": {
 
             "value":
-                ef,
+                result_value,
 
             "unit":
-                "%",
+                test["unit"],
 
             "system":
                 "http://unitsofmeasure.org",
 
             "code":
-                "%"
+                test["unit"]
         }
     }
 
@@ -404,7 +428,7 @@ def send():
             headers={
                 "X-API-Key": API_KEY
             },
-            timeout=5
+            timeout=REQUEST_TIMEOUT
         )
 
         exchange_response = response.json()
@@ -549,5 +573,8 @@ if __name__ == "__main__":
         port=5000,
         debug=True
     )
+
+
+
 
 

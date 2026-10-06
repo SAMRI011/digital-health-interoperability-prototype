@@ -1,4 +1,4 @@
-﻿from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
@@ -11,9 +11,20 @@ supported_loinc_codes = {
     "10230-1": {
         "display": "Left ventricular ejection fraction",
         "expected_ucum_unit": "%"
+    },
+    "718-7": {
+        "display": "Hemoglobin [Mass/volume] in Blood",
+        "expected_ucum_unit": "g/dL"
+    },
+    "2160-0": {
+        "display": "Creatinine [Mass/volume] in Serum or Plasma",
+        "expected_ucum_unit": "mg/dL"
+    },
+    "2345-7": {
+        "display": "Glucose [Mass/volume] in Serum or Plasma",
+        "expected_ucum_unit": "mg/dL"
     }
 }
-
 
 # -------------------------------------------------
 # Dashboard

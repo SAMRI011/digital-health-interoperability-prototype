@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+﻿from flask import Flask, request, jsonify
 import requests
 import sqlite3
 import os
@@ -10,14 +10,15 @@ app = Flask(__name__)
 # Configuration
 # -------------------------------------------------
 
-HOSPITAL_API = "http://127.0.0.1:5001/api/results"
+HOSPITAL_API = os.environ.get("HOSPITAL_API", "http://127.0.0.1:5001/api/results")
 
-DIAGNOSTIC_CENTER_URL = "http://127.0.0.1:5000"
-HOSPITAL_URL = "http://127.0.0.1:5001"
-CLIENT_REGISTRY_URL = "http://127.0.0.1:5002"
-TERMINOLOGY_URL = "http://127.0.0.1:5004"
+DIAGNOSTIC_CENTER_URL = os.environ.get("DIAGNOSTIC_CENTER_URL", "http://127.0.0.1:5000")
+HOSPITAL_URL = os.environ.get("HOSPITAL_URL", "http://127.0.0.1:5001")
+CLIENT_REGISTRY_URL = os.environ.get("CLIENT_REGISTRY_URL", "http://127.0.0.1:5002")
+TERMINOLOGY_URL = os.environ.get("TERMINOLOGY_URL", "http://127.0.0.1:5004")
 
 DIAGNOSTIC_API_KEY = os.environ.get("DIAGNOSTIC_API_KEY")
+REQUEST_TIMEOUT = int(os.environ.get("REQUEST_TIMEOUT", "5"))
 
 
 if not DIAGNOSTIC_API_KEY:
@@ -331,13 +332,13 @@ def home():
                 Diagnostic Center
 
                 <span class="arrow">
-                    →
+                    â†’
                 </span>
 
                 Interoperability Layer
 
                 <span class="arrow">
-                    →
+                    â†’
                 </span>
 
                 Hospital EMR
@@ -347,7 +348,7 @@ def home():
                 Hospital EMR
 
                 <span class="arrow">
-                    →
+                    â†’
                 </span>
 
                 Client Registry
@@ -399,7 +400,7 @@ def home():
         <footer class="footer">
 
             Synthetic digital-health interoperability
-            demonstration — no real patient data.
+            demonstration â€” no real patient data.
 
         </footer>
 
@@ -503,7 +504,7 @@ def exchange():
         hospital_response = requests.post(
             HOSPITAL_API,
             json=bundle,
-            timeout=5
+            timeout=REQUEST_TIMEOUT
         )
 
     except requests.exceptions.RequestException:
@@ -645,3 +646,9 @@ if __name__ == "__main__":
         port=5003,
         debug=True
     )
+
+
+
+
+
+

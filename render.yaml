@@ -1,0 +1,79 @@
+﻿services:
+  - type: web
+    name: samri011-dh-exchange
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --chdir interoperability_layer exchange:app --timeout 300
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.14
+      - key: REQUEST_TIMEOUT
+        value: "300"
+      - key: DIAGNOSTIC_API_KEY
+        generateValue: true
+      - key: HOSPITAL_API
+        value: https://samri011-dh-hospital.onrender.com/api/results
+      - key: DIAGNOSTIC_CENTER_URL
+        value: https://samri011-dh-diagnostic.onrender.com
+      - key: HOSPITAL_URL
+        value: https://samri011-dh-hospital.onrender.com
+      - key: CLIENT_REGISTRY_URL
+        value: https://samri011-dh-registry.onrender.com
+      - key: TERMINOLOGY_URL
+        value: https://samri011-dh-terminology.onrender.com
+
+  - type: web
+    name: samri011-dh-diagnostic
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --chdir diagnostic_center diagnostic:app --timeout 300
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.14
+      - key: REQUEST_TIMEOUT
+        value: "300"
+      - key: EXCHANGE_API
+        value: https://samri011-dh-exchange.onrender.com/api/exchange
+      - key: DIAGNOSTIC_API_KEY
+        fromService:
+          type: web
+          name: samri011-dh-exchange
+          envVarKey: DIAGNOSTIC_API_KEY
+
+  - type: web
+    name: samri011-dh-hospital
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --chdir hospital_emr hospital:app --timeout 300
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.14
+      - key: REQUEST_TIMEOUT
+        value: "300"
+      - key: CLIENT_REGISTRY_API
+        value: https://samri011-dh-registry.onrender.com/api/match
+      - key: TERMINOLOGY_API
+        value: https://samri011-dh-terminology.onrender.com/api/validate
+
+  - type: web
+    name: samri011-dh-registry
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --chdir client_registry registry:app --timeout 300
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.14
+
+  - type: web
+    name: samri011-dh-terminology
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --chdir terminology_service terminology:app --timeout 300
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.14
