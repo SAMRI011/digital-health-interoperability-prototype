@@ -1,0 +1,31 @@
+﻿# Python
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local databases and runtime data
+*.db
+*.sqlite
+*.sqlite3
+
+# Secrets / local environment
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary project files / backups
+ui-backup-*/
+current_code.txt
+*.log
+
+# Local development helper scripts
+prepare_github.ps1
+redesign_healthlink_ui.ps1
